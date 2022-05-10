@@ -10,7 +10,7 @@ LINTIGNORESINGLEFIGHT='internal/sync/singleflight/singleflight.go:.+error should
 UNIT_TEST_TAGS="example codegen awsinclude"
 ALL_TAGS="example codegen awsinclude integration perftest"
 
-# SDK's Core and client packages that are compatable with Go 1.5+.
+# SDK's Core and client packages that are compatible with Go 1.5+.
 SDK_CORE_PKGS=./aws/... ./private/... ./internal/...
 SDK_CLIENT_PKGS=./service/...
 SDK_COMPA_PKGS=${SDK_CORE_PKGS} ${SDK_CLIENT_PKGS}

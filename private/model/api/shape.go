@@ -200,7 +200,7 @@ func (s *Shape) ErrorName() string {
 		name = s.ShapeName
 	}
 
-	return name
+	return s.API.AwsQueryCompatibleErrorCode(name)
 }
 
 // PayloadRefName returns the payload member of the shape if there is one

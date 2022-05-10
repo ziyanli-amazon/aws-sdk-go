@@ -2,6 +2,10 @@
 
 package sqs
 
+import (
+	"github.com/aws/aws-sdk-go/private/protocol"
+)
+
 const (
 
 	// ErrCodeBatchEntryIdsNotDistinct for service response error code
@@ -22,11 +26,19 @@ const (
 	// The batch request doesn't contain any entries.
 	ErrCodeEmptyBatchRequest = "AWS.SimpleQueueService.EmptyBatchRequest"
 
+	// ErrCodeInvalidAddress for service response error code
+	// "InvalidAddress".
+	ErrCodeInvalidAddress = "InvalidAddress"
+
 	// ErrCodeInvalidAttributeName for service response error code
 	// "InvalidAttributeName".
 	//
 	// The specified attribute doesn't exist.
 	ErrCodeInvalidAttributeName = "InvalidAttributeName"
+
+	// ErrCodeInvalidAttributeValue for service response error code
+	// "InvalidAttributeValue".
+	ErrCodeInvalidAttributeValue = "InvalidAttributeValue"
 
 	// ErrCodeInvalidBatchEntryId for service response error code
 	// "AWS.SimpleQueueService.InvalidBatchEntryId".
@@ -45,6 +57,38 @@ const (
 	//
 	// The message contains characters outside the allowed set.
 	ErrCodeInvalidMessageContents = "InvalidMessageContents"
+
+	// ErrCodeInvalidSecurity for service response error code
+	// "InvalidSecurity".
+	ErrCodeInvalidSecurity = "InvalidSecurity"
+
+	// ErrCodeKmsAccessDenied for service response error code
+	// "KMS.AccessDeniedException".
+	ErrCodeKmsAccessDenied = "KMS.AccessDeniedException"
+
+	// ErrCodeKmsDisabled for service response error code
+	// "KMS.DisabledException".
+	ErrCodeKmsDisabled = "KMS.DisabledException"
+
+	// ErrCodeKmsInvalidKeyUsage for service response error code
+	// "KMS.InvalidKeyUsageException".
+	ErrCodeKmsInvalidKeyUsage = "KMS.InvalidKeyUsageException"
+
+	// ErrCodeKmsInvalidState for service response error code
+	// "KMS.InvalidStateException".
+	ErrCodeKmsInvalidState = "KMS.InvalidStateException"
+
+	// ErrCodeKmsNotFound for service response error code
+	// "KMS.NotFoundException".
+	ErrCodeKmsNotFound = "KMS.NotFoundException"
+
+	// ErrCodeKmsOptInRequired for service response error code
+	// "KMS.OptInRequired".
+	ErrCodeKmsOptInRequired = "KMS.OptInRequired"
+
+	// ErrCodeKmsThrottled for service response error code
+	// "KMS.ThrottlingException".
+	ErrCodeKmsThrottled = "KMS.ThrottlingException"
 
 	// ErrCodeMessageNotInflight for service response error code
 	// "AWS.SimpleQueueService.MessageNotInflight".
@@ -96,6 +140,10 @@ const (
 	// The specified receipt handle isn't valid.
 	ErrCodeReceiptHandleIsInvalid = "ReceiptHandleIsInvalid"
 
+	// ErrCodeRequestThrottled for service response error code
+	// "RequestThrottled".
+	ErrCodeRequestThrottled = "RequestThrottled"
+
 	// ErrCodeTooManyEntriesInBatchRequest for service response error code
 	// "AWS.SimpleQueueService.TooManyEntriesInBatchRequest".
 	//
@@ -108,3 +156,33 @@ const (
 	// Error code 400. Unsupported operation.
 	ErrCodeUnsupportedOperation = "AWS.SimpleQueueService.UnsupportedOperation"
 )
+
+var exceptionFromCode = map[string]func(protocol.ResponseMetadata) error{
+	"BatchEntryIdsNotDistinct":     newErrorBatchEntryIdsNotDistinct,
+	"BatchRequestTooLong":          newErrorBatchRequestTooLong,
+	"EmptyBatchRequest":            newErrorEmptyBatchRequest,
+	"InvalidAddress":               newErrorInvalidAddress,
+	"InvalidAttributeName":         newErrorInvalidAttributeName,
+	"InvalidAttributeValue":        newErrorInvalidAttributeValue,
+	"InvalidBatchEntryId":          newErrorInvalidBatchEntryId,
+	"InvalidIdFormat":              newErrorInvalidIdFormat,
+	"InvalidMessageContents":       newErrorInvalidMessageContents,
+	"InvalidSecurity":              newErrorInvalidSecurity,
+	"KmsAccessDenied":              newErrorKmsAccessDenied,
+	"KmsDisabled":                  newErrorKmsDisabled,
+	"KmsInvalidKeyUsage":           newErrorKmsInvalidKeyUsage,
+	"KmsInvalidState":              newErrorKmsInvalidState,
+	"KmsNotFound":                  newErrorKmsNotFound,
+	"KmsOptInRequired":             newErrorKmsOptInRequired,
+	"KmsThrottled":                 newErrorKmsThrottled,
+	"MessageNotInflight":           newErrorMessageNotInflight,
+	"OverLimit":                    newErrorOverLimit,
+	"PurgeQueueInProgress":         newErrorPurgeQueueInProgress,
+	"QueueDeletedRecently":         newErrorQueueDeletedRecently,
+	"QueueDoesNotExist":            newErrorQueueDoesNotExist,
+	"QueueNameExists":              newErrorQueueNameExists,
+	"ReceiptHandleIsInvalid":       newErrorReceiptHandleIsInvalid,
+	"RequestThrottled":             newErrorRequestThrottled,
+	"TooManyEntriesInBatchRequest": newErrorTooManyEntriesInBatchRequest,
+	"UnsupportedOperation":         newErrorUnsupportedOperation,
+}

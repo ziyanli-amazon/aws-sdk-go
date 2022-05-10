@@ -4,12 +4,13 @@ package sqs
 
 import (
 	"fmt"
+	"github.com/aws/aws-sdk-go/private/protocol/query"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/awsutil"
 	"github.com/aws/aws-sdk-go/aws/request"
 	"github.com/aws/aws-sdk-go/private/protocol"
-	"github.com/aws/aws-sdk-go/private/protocol/query"
+	"github.com/aws/aws-sdk-go/private/protocol/jsonrpc"
 )
 
 const opAddPermission = "AddPermission"
@@ -51,7 +52,7 @@ func (c *SQS) AddPermissionRequest(input *AddPermissionInput) (req *request.Requ
 
 	output = &AddPermissionOutput{}
 	req = c.newRequest(op, input, output)
-	req.Handlers.Unmarshal.Swap(query.UnmarshalHandler.Name, protocol.UnmarshalDiscardBodyHandler)
+	req.Handlers.Unmarshal.Swap(jsonrpc.UnmarshalHandler.Name, protocol.UnmarshalDiscardBodyHandler)
 	return
 }
 
@@ -96,13 +97,24 @@ func (c *SQS) AddPermissionRequest(input *AddPermissionInput) (req *request.Requ
 // See the AWS API reference guide for Amazon Simple Queue Service's
 // API operation AddPermission for usage and error information.
 //
-// Returned Error Codes:
-//   * ErrCodeOverLimit "OverLimit"
+// Returned Error Types:
+//   * OverLimit
 //   The specified action violates a limit. For example, ReceiveMessage returns
 //   this error if the maximum number of inflight messages is reached and AddPermission
 //   returns this error if the maximum number of permissions for the queue is
 //   reached.
 //
+//   * RequestThrottled
+//
+//   * QueueDoesNotExist
+//   The specified queue doesn't exist.
+//
+//   * InvalidAddress
+//
+//   * InvalidSecurity
+//
+//   * UnsupportedOperation
+//   Error code 400. Unsupported operation.
 // See also, https://docs.aws.amazon.com/goto/WebAPI/sqs-2012-11-05/AddPermission
 func (c *SQS) AddPermission(input *AddPermissionInput) (*AddPermissionOutput, error) {
 	req, out := c.AddPermissionRequest(input)
@@ -164,7 +176,7 @@ func (c *SQS) ChangeMessageVisibilityRequest(input *ChangeMessageVisibilityInput
 
 	output = &ChangeMessageVisibilityOutput{}
 	req = c.newRequest(op, input, output)
-	req.Handlers.Unmarshal.Swap(query.UnmarshalHandler.Name, protocol.UnmarshalDiscardBodyHandler)
+	req.Handlers.Unmarshal.Swap(jsonrpc.UnmarshalHandler.Name, protocol.UnmarshalDiscardBodyHandler)
 	return
 }
 
@@ -230,12 +242,19 @@ func (c *SQS) ChangeMessageVisibilityRequest(input *ChangeMessageVisibilityInput
 // See the AWS API reference guide for Amazon Simple Queue Service's
 // API operation ChangeMessageVisibility for usage and error information.
 //
-// Returned Error Codes:
-//   * ErrCodeMessageNotInflight "AWS.SimpleQueueService.MessageNotInflight"
+// Returned Error Types:
+//   * MessageNotInflight
 //   The specified message isn't in flight.
 //
-//   * ErrCodeReceiptHandleIsInvalid "ReceiptHandleIsInvalid"
+//   * ReceiptHandleIsInvalid
 //   The specified receipt handle isn't valid.
+//   * RequestThrottled
+//
+//   * QueueDoesNotExist
+//   The specified queue doesn't exist.
+//
+//   * UnsupportedOperation
+//   Error code 400. Unsupported operation.
 //
 // See also, https://docs.aws.amazon.com/goto/WebAPI/sqs-2012-11-05/ChangeMessageVisibility
 func (c *SQS) ChangeMessageVisibility(input *ChangeMessageVisibilityInput) (*ChangeMessageVisibilityOutput, error) {
@@ -327,18 +346,27 @@ func (c *SQS) ChangeMessageVisibilityBatchRequest(input *ChangeMessageVisibility
 // See the AWS API reference guide for Amazon Simple Queue Service's
 // API operation ChangeMessageVisibilityBatch for usage and error information.
 //
-// Returned Error Codes:
-//   * ErrCodeTooManyEntriesInBatchRequest "AWS.SimpleQueueService.TooManyEntriesInBatchRequest"
+// Returned Error Types:
+//
+//   * TooManyEntriesInBatchRequest
 //   The batch request contains more entries than permissible.
 //
-//   * ErrCodeEmptyBatchRequest "AWS.SimpleQueueService.EmptyBatchRequest"
+//   * EmptyBatchRequest
 //   The batch request doesn't contain any entries.
 //
-//   * ErrCodeBatchEntryIdsNotDistinct "AWS.SimpleQueueService.BatchEntryIdsNotDistinct"
+//   * BatchEntryIdsNotDistinct
 //   Two or more batch entries in the request have the same Id.
 //
-//   * ErrCodeInvalidBatchEntryId "AWS.SimpleQueueService.InvalidBatchEntryId"
+//   * InvalidBatchEntryId
 //   The Id of a batch entry in a batch request doesn't abide by the specification.
+//
+//   * RequestThrottled
+//
+//   * QueueDoesNotExist
+//   The specified queue doesn't exist.
+//
+//   * UnsupportedOperation
+//   Error code 400. Unsupported operation.
 //
 // See also, https://docs.aws.amazon.com/goto/WebAPI/sqs-2012-11-05/ChangeMessageVisibilityBatch
 func (c *SQS) ChangeMessageVisibilityBatch(input *ChangeMessageVisibilityBatchInput) (*ChangeMessageVisibilityBatchOutput, error) {
@@ -459,15 +487,29 @@ func (c *SQS) CreateQueueRequest(input *CreateQueueInput) (req *request.Request,
 // See the AWS API reference guide for Amazon Simple Queue Service's
 // API operation CreateQueue for usage and error information.
 //
-// Returned Error Codes:
-//   * ErrCodeQueueDeletedRecently "AWS.SimpleQueueService.QueueDeletedRecently"
+// Returned Error Types:
+//   * QueueDeletedRecently
 //   You must wait 60 seconds after deleting a queue before you can create another
 //   queue with the same name.
 //
-//   * ErrCodeQueueNameExists "QueueAlreadyExists"
+//   * QueueNameExists
 //   A queue with this name already exists. Amazon SQS returns this error only
 //   if the request includes attributes whose values differ from those of the
 //   existing queue.
+//
+//   * RequestThrottled
+//
+//   * InvalidAddress
+//
+//   * InvalidAttributeName
+//   The specified attribute doesn't exist.
+//
+//   * InvalidAttributeValue
+//
+//   * UnsupportedOperation
+//   Error code 400. Unsupported operation.
+//
+//   * InvalidSecurity
 //
 // See also, https://docs.aws.amazon.com/goto/WebAPI/sqs-2012-11-05/CreateQueue
 func (c *SQS) CreateQueue(input *CreateQueueInput) (*CreateQueueOutput, error) {
@@ -530,7 +572,7 @@ func (c *SQS) DeleteMessageRequest(input *DeleteMessageInput) (req *request.Requ
 
 	output = &DeleteMessageOutput{}
 	req = c.newRequest(op, input, output)
-	req.Handlers.Unmarshal.Swap(query.UnmarshalHandler.Name, protocol.UnmarshalDiscardBodyHandler)
+	req.Handlers.Unmarshal.Swap(jsonrpc.UnmarshalHandler.Name, protocol.UnmarshalDiscardBodyHandler)
 	return
 }
 
@@ -564,12 +606,22 @@ func (c *SQS) DeleteMessageRequest(input *DeleteMessageInput) (req *request.Requ
 // See the AWS API reference guide for Amazon Simple Queue Service's
 // API operation DeleteMessage for usage and error information.
 //
-// Returned Error Codes:
-//   * ErrCodeInvalidIdFormat "InvalidIdFormat"
+// Returned Error Types:
+//
+//   * InvalidIdFormat
 //   The specified receipt handle isn't valid for the current version.
 //
-//   * ErrCodeReceiptHandleIsInvalid "ReceiptHandleIsInvalid"
+//   * ReceiptHandleIsInvalid
 //   The specified receipt handle isn't valid.
+//   * RequestThrottled
+//
+//   * QueueDoesNotExist
+//   The specified queue doesn't exist.
+//
+//   * UnsupportedOperation
+//   Error code 400. Unsupported operation.
+//
+//   * InvalidSecurity
 //
 // See also, https://docs.aws.amazon.com/goto/WebAPI/sqs-2012-11-05/DeleteMessage
 func (c *SQS) DeleteMessage(input *DeleteMessageInput) (*DeleteMessageOutput, error) {
@@ -660,18 +712,26 @@ func (c *SQS) DeleteMessageBatchRequest(input *DeleteMessageBatchInput) (req *re
 // See the AWS API reference guide for Amazon Simple Queue Service's
 // API operation DeleteMessageBatch for usage and error information.
 //
-// Returned Error Codes:
-//   * ErrCodeTooManyEntriesInBatchRequest "AWS.SimpleQueueService.TooManyEntriesInBatchRequest"
+// Returned Error Types:
+//   * TooManyEntriesInBatchRequest
 //   The batch request contains more entries than permissible.
 //
-//   * ErrCodeEmptyBatchRequest "AWS.SimpleQueueService.EmptyBatchRequest"
+//   * EmptyBatchRequest
 //   The batch request doesn't contain any entries.
 //
-//   * ErrCodeBatchEntryIdsNotDistinct "AWS.SimpleQueueService.BatchEntryIdsNotDistinct"
+//   * BatchEntryIdsNotDistinct
 //   Two or more batch entries in the request have the same Id.
 //
-//   * ErrCodeInvalidBatchEntryId "AWS.SimpleQueueService.InvalidBatchEntryId"
+//   * InvalidBatchEntryId
 //   The Id of a batch entry in a batch request doesn't abide by the specification.
+//
+//   * RequestThrottled
+//
+//   * QueueDoesNotExist
+//   The specified queue doesn't exist.
+//
+//   * UnsupportedOperation
+//   Error code 400. Unsupported operation.
 //
 // See also, https://docs.aws.amazon.com/goto/WebAPI/sqs-2012-11-05/DeleteMessageBatch
 func (c *SQS) DeleteMessageBatch(input *DeleteMessageBatchInput) (*DeleteMessageBatchOutput, error) {
@@ -734,7 +794,7 @@ func (c *SQS) DeleteQueueRequest(input *DeleteQueueInput) (req *request.Request,
 
 	output = &DeleteQueueOutput{}
 	req = c.newRequest(op, input, output)
-	req.Handlers.Unmarshal.Swap(query.UnmarshalHandler.Name, protocol.UnmarshalDiscardBodyHandler)
+	req.Handlers.Unmarshal.Swap(jsonrpc.UnmarshalHandler.Name, protocol.UnmarshalDiscardBodyHandler)
 	return
 }
 
@@ -763,6 +823,20 @@ func (c *SQS) DeleteQueueRequest(input *DeleteQueueInput) (req *request.Request,
 //
 // See the AWS API reference guide for Amazon Simple Queue Service's
 // API operation DeleteQueue for usage and error information.
+//
+// Returned Error Types:
+//   * RequestThrottled
+//
+//   * QueueDoesNotExist
+//   The specified queue doesn't exist.
+//
+//   * InvalidAddress
+//
+//   * UnsupportedOperation
+//   Error code 400. Unsupported operation.
+//
+//   * InvalidSecurity
+//
 // See also, https://docs.aws.amazon.com/goto/WebAPI/sqs-2012-11-05/DeleteQueue
 func (c *SQS) DeleteQueue(input *DeleteQueueInput) (*DeleteQueueOutput, error) {
 	req, out := c.DeleteQueueRequest(input)
@@ -841,9 +915,19 @@ func (c *SQS) GetQueueAttributesRequest(input *GetQueueAttributesInput) (req *re
 // See the AWS API reference guide for Amazon Simple Queue Service's
 // API operation GetQueueAttributes for usage and error information.
 //
-// Returned Error Codes:
-//   * ErrCodeInvalidAttributeName "InvalidAttributeName"
+// Returned Error Types:
+//   * InvalidAttributeName
 //   The specified attribute doesn't exist.
+//
+//   * RequestThrottled
+//
+//   * QueueDoesNotExist
+//   The specified queue doesn't exist.
+//
+//   * UnsupportedOperation
+//   Error code 400. Unsupported operation.
+//
+//   * InvalidSecurity
 //
 // See also, https://docs.aws.amazon.com/goto/WebAPI/sqs-2012-11-05/GetQueueAttributes
 func (c *SQS) GetQueueAttributes(input *GetQueueAttributesInput) (*GetQueueAttributesOutput, error) {
@@ -927,9 +1011,18 @@ func (c *SQS) GetQueueUrlRequest(input *GetQueueUrlInput) (req *request.Request,
 // See the AWS API reference guide for Amazon Simple Queue Service's
 // API operation GetQueueUrl for usage and error information.
 //
-// Returned Error Codes:
-//   * ErrCodeQueueDoesNotExist "AWS.SimpleQueueService.NonExistentQueue"
+// Returned Error Types:
+//   * RequestThrottled
+//
+//   * QueueDoesNotExist
 //   The specified queue doesn't exist.
+//
+//   * InvalidAddress
+//
+//   * InvalidSecurity
+//
+//   * UnsupportedOperation
+//   Error code 400. Unsupported operation.
 //
 // See also, https://docs.aws.amazon.com/goto/WebAPI/sqs-2012-11-05/GetQueueUrl
 func (c *SQS) GetQueueUrl(input *GetQueueUrlInput) (*GetQueueUrlOutput, error) {
@@ -1025,9 +1118,18 @@ func (c *SQS) ListDeadLetterSourceQueuesRequest(input *ListDeadLetterSourceQueue
 // See the AWS API reference guide for Amazon Simple Queue Service's
 // API operation ListDeadLetterSourceQueues for usage and error information.
 //
-// Returned Error Codes:
-//   * ErrCodeQueueDoesNotExist "AWS.SimpleQueueService.NonExistentQueue"
+// Returned Error Types:
+//   * QueueDoesNotExist
 //   The specified queue doesn't exist.
+//
+//   * RequestThrottled
+//
+//   * InvalidSecurity
+//
+//   * InvalidAddress
+//
+//   * UnsupportedOperation
+//   Error code 400. Unsupported operation.
 //
 // See also, https://docs.aws.amazon.com/goto/WebAPI/sqs-2012-11-05/ListDeadLetterSourceQueues
 func (c *SQS) ListDeadLetterSourceQueues(input *ListDeadLetterSourceQueuesInput) (*ListDeadLetterSourceQueuesOutput, error) {
@@ -1161,6 +1263,20 @@ func (c *SQS) ListQueueTagsRequest(input *ListQueueTagsInput) (req *request.Requ
 //
 // See the AWS API reference guide for Amazon Simple Queue Service's
 // API operation ListQueueTags for usage and error information.
+//
+// Returned Error Types:
+//   * RequestThrottled
+//
+//   * QueueDoesNotExist
+//   The specified queue doesn't exist.
+//
+//   * UnsupportedOperation
+//   Error code 400. Unsupported operation.
+//
+//   * InvalidAddress
+//
+//   * InvalidSecurity
+//
 // See also, https://docs.aws.amazon.com/goto/WebAPI/sqs-2012-11-05/ListQueueTags
 func (c *SQS) ListQueueTags(input *ListQueueTagsInput) (*ListQueueTagsOutput, error) {
 	req, out := c.ListQueueTagsRequest(input)
@@ -1255,6 +1371,17 @@ func (c *SQS) ListQueuesRequest(input *ListQueuesInput) (req *request.Request, o
 //
 // See the AWS API reference guide for Amazon Simple Queue Service's
 // API operation ListQueues for usage and error information.
+//
+// Returned Error Types:
+//   * RequestThrottled
+//
+//   * InvalidSecurity
+//
+//   * InvalidAddress
+//
+//   * UnsupportedOperation
+//   Error code 400. Unsupported operation.
+//
 // See also, https://docs.aws.amazon.com/goto/WebAPI/sqs-2012-11-05/ListQueues
 func (c *SQS) ListQueues(input *ListQueuesInput) (*ListQueuesOutput, error) {
 	req, out := c.ListQueuesRequest(input)
@@ -1368,7 +1495,7 @@ func (c *SQS) PurgeQueueRequest(input *PurgeQueueInput) (req *request.Request, o
 
 	output = &PurgeQueueOutput{}
 	req = c.newRequest(op, input, output)
-	req.Handlers.Unmarshal.Swap(query.UnmarshalHandler.Name, protocol.UnmarshalDiscardBodyHandler)
+	req.Handlers.Unmarshal.Swap(jsonrpc.UnmarshalHandler.Name, protocol.UnmarshalDiscardBodyHandler)
 	return
 }
 
@@ -1395,14 +1522,23 @@ func (c *SQS) PurgeQueueRequest(input *PurgeQueueInput) (req *request.Request, o
 // See the AWS API reference guide for Amazon Simple Queue Service's
 // API operation PurgeQueue for usage and error information.
 //
-// Returned Error Codes:
-//   * ErrCodeQueueDoesNotExist "AWS.SimpleQueueService.NonExistentQueue"
+// Returned Error Types:
+//   * QueueDoesNotExist
 //   The specified queue doesn't exist.
 //
-//   * ErrCodePurgeQueueInProgress "AWS.SimpleQueueService.PurgeQueueInProgress"
+//   * PurgeQueueInProgress
 //   Indicates that the specified queue previously received a PurgeQueue request
 //   within the last 60 seconds (the time it can take to delete the messages in
 //   the queue).
+//
+//   * RequestThrottled
+//
+//   * InvalidAddress
+//
+//   * InvalidSecurity
+//
+//   * UnsupportedOperation
+//   Error code 400. Unsupported operation.
 //
 // See also, https://docs.aws.amazon.com/goto/WebAPI/sqs-2012-11-05/PurgeQueue
 func (c *SQS) PurgeQueue(input *PurgeQueueInput) (*PurgeQueueOutput, error) {
@@ -1525,12 +1661,36 @@ func (c *SQS) ReceiveMessageRequest(input *ReceiveMessageInput) (req *request.Re
 // See the AWS API reference guide for Amazon Simple Queue Service's
 // API operation ReceiveMessage for usage and error information.
 //
-// Returned Error Codes:
-//   * ErrCodeOverLimit "OverLimit"
+// Returned Error Types:
+//   * UnsupportedOperation
+//   Error code 400. Unsupported operation.
+//
+//   * OverLimit
 //   The specified action violates a limit. For example, ReceiveMessage returns
 //   this error if the maximum number of inflight messages is reached and AddPermission
 //   returns this error if the maximum number of permissions for the queue is
 //   reached.
+//
+//   * RequestThrottled
+//
+//   * QueueDoesNotExist
+//   The specified queue doesn't exist.
+//
+//   * InvalidSecurity
+//
+//   * KmsDisabled
+//
+//   * KmsInvalidState
+//
+//   * KmsNotFound
+//
+//   * KmsOptInRequired
+//
+//   * KmsThrottled
+//
+//   * KmsAccessDenied
+//
+//   * KmsInvalidKeyUsage
 //
 // See also, https://docs.aws.amazon.com/goto/WebAPI/sqs-2012-11-05/ReceiveMessage
 func (c *SQS) ReceiveMessage(input *ReceiveMessageInput) (*ReceiveMessageOutput, error) {
@@ -1593,7 +1753,7 @@ func (c *SQS) RemovePermissionRequest(input *RemovePermissionInput) (req *reques
 
 	output = &RemovePermissionOutput{}
 	req = c.newRequest(op, input, output)
-	req.Handlers.Unmarshal.Swap(query.UnmarshalHandler.Name, protocol.UnmarshalDiscardBodyHandler)
+	req.Handlers.Unmarshal.Swap(jsonrpc.UnmarshalHandler.Name, protocol.UnmarshalDiscardBodyHandler)
 	return
 }
 
@@ -1618,6 +1778,20 @@ func (c *SQS) RemovePermissionRequest(input *RemovePermissionInput) (req *reques
 //
 // See the AWS API reference guide for Amazon Simple Queue Service's
 // API operation RemovePermission for usage and error information.
+//
+// Returned Error Types:
+//   * InvalidAddress
+//
+//   * RequestThrottled
+//
+//   * QueueDoesNotExist
+//   The specified queue doesn't exist.
+//
+//   * InvalidSecurity
+//
+//   * UnsupportedOperation
+//   Error code 400. Unsupported operation.
+//
 // See also, https://docs.aws.amazon.com/goto/WebAPI/sqs-2012-11-05/RemovePermission
 func (c *SQS) RemovePermission(input *RemovePermissionInput) (*RemovePermissionOutput, error) {
 	req, out := c.RemovePermissionRequest(input)
@@ -1701,12 +1875,33 @@ func (c *SQS) SendMessageRequest(input *SendMessageInput) (req *request.Request,
 // See the AWS API reference guide for Amazon Simple Queue Service's
 // API operation SendMessage for usage and error information.
 //
-// Returned Error Codes:
-//   * ErrCodeInvalidMessageContents "InvalidMessageContents"
+// Returned Error Types:
+//   * InvalidMessageContents
 //   The message contains characters outside the allowed set.
 //
-//   * ErrCodeUnsupportedOperation "AWS.SimpleQueueService.UnsupportedOperation"
+//   * UnsupportedOperation
 //   Error code 400. Unsupported operation.
+//
+//   * RequestThrottled
+//
+//   * QueueDoesNotExist
+//   The specified queue doesn't exist.
+//
+//   * InvalidSecurity
+//
+//   * KmsDisabled
+//
+//   * KmsInvalidState
+//
+//   * KmsNotFound
+//
+//   * KmsOptInRequired
+//
+//   * KmsThrottled
+//
+//   * KmsAccessDenied
+//
+//   * KmsInvalidKeyUsage
 //
 // See also, https://docs.aws.amazon.com/goto/WebAPI/sqs-2012-11-05/SendMessage
 func (c *SQS) SendMessage(input *SendMessageInput) (*SendMessageOutput, error) {
@@ -1813,24 +2008,45 @@ func (c *SQS) SendMessageBatchRequest(input *SendMessageBatchInput) (req *reques
 // See the AWS API reference guide for Amazon Simple Queue Service's
 // API operation SendMessageBatch for usage and error information.
 //
-// Returned Error Codes:
-//   * ErrCodeTooManyEntriesInBatchRequest "AWS.SimpleQueueService.TooManyEntriesInBatchRequest"
+// Returned Error Types:
+//   * TooManyEntriesInBatchRequest
 //   The batch request contains more entries than permissible.
 //
-//   * ErrCodeEmptyBatchRequest "AWS.SimpleQueueService.EmptyBatchRequest"
+//   * EmptyBatchRequest
 //   The batch request doesn't contain any entries.
 //
-//   * ErrCodeBatchEntryIdsNotDistinct "AWS.SimpleQueueService.BatchEntryIdsNotDistinct"
+//   * BatchEntryIdsNotDistinct
 //   Two or more batch entries in the request have the same Id.
 //
-//   * ErrCodeBatchRequestTooLong "AWS.SimpleQueueService.BatchRequestTooLong"
+//   * BatchRequestTooLong
 //   The length of all the messages put together is more than the limit.
 //
-//   * ErrCodeInvalidBatchEntryId "AWS.SimpleQueueService.InvalidBatchEntryId"
+//   * InvalidBatchEntryId
 //   The Id of a batch entry in a batch request doesn't abide by the specification.
 //
-//   * ErrCodeUnsupportedOperation "AWS.SimpleQueueService.UnsupportedOperation"
+//   * UnsupportedOperation
 //   Error code 400. Unsupported operation.
+//
+//   * RequestThrottled
+//
+//   * QueueDoesNotExist
+//   The specified queue doesn't exist.
+//
+//   * InvalidSecurity
+//
+//   * KmsDisabled
+//
+//   * KmsInvalidState
+//
+//   * KmsNotFound
+//
+//   * KmsOptInRequired
+//
+//   * KmsThrottled
+//
+//   * KmsAccessDenied
+//
+//   * KmsInvalidKeyUsage
 //
 // See also, https://docs.aws.amazon.com/goto/WebAPI/sqs-2012-11-05/SendMessageBatch
 func (c *SQS) SendMessageBatch(input *SendMessageBatchInput) (*SendMessageBatchOutput, error) {
@@ -1893,7 +2109,7 @@ func (c *SQS) SetQueueAttributesRequest(input *SetQueueAttributesInput) (req *re
 
 	output = &SetQueueAttributesOutput{}
 	req = c.newRequest(op, input, output)
-	req.Handlers.Unmarshal.Swap(query.UnmarshalHandler.Name, protocol.UnmarshalDiscardBodyHandler)
+	req.Handlers.Unmarshal.Swap(jsonrpc.UnmarshalHandler.Name, protocol.UnmarshalDiscardBodyHandler)
 	return
 }
 
@@ -1923,9 +2139,29 @@ func (c *SQS) SetQueueAttributesRequest(input *SetQueueAttributesInput) (req *re
 // See the AWS API reference guide for Amazon Simple Queue Service's
 // API operation SetQueueAttributes for usage and error information.
 //
-// Returned Error Codes:
-//   * ErrCodeInvalidAttributeName "InvalidAttributeName"
+// Returned Error Types:
+//   * InvalidAttributeName
 //   The specified attribute doesn't exist.
+//
+//   * InvalidAttributeValue
+//
+//   * RequestThrottled
+//
+//   * QueueDoesNotExist
+//   The specified queue doesn't exist.
+//
+//   * UnsupportedOperation
+//   Error code 400. Unsupported operation.
+//
+//   * OverLimit
+//   The specified action violates a limit. For example, ReceiveMessage returns
+//   this error if the maximum number of inflight messages is reached and AddPermission
+//   returns this error if the maximum number of permissions for the queue is
+//   reached.
+//
+//   * InvalidAddress
+//
+//   * InvalidSecurity
 //
 // See also, https://docs.aws.amazon.com/goto/WebAPI/sqs-2012-11-05/SetQueueAttributes
 func (c *SQS) SetQueueAttributes(input *SetQueueAttributesInput) (*SetQueueAttributesOutput, error) {
@@ -1988,7 +2224,7 @@ func (c *SQS) TagQueueRequest(input *TagQueueInput) (req *request.Request, outpu
 
 	output = &TagQueueOutput{}
 	req = c.newRequest(op, input, output)
-	req.Handlers.Unmarshal.Swap(query.UnmarshalHandler.Name, protocol.UnmarshalDiscardBodyHandler)
+	req.Handlers.Unmarshal.Swap(jsonrpc.UnmarshalHandler.Name, protocol.UnmarshalDiscardBodyHandler)
 	return
 }
 
@@ -2023,6 +2259,20 @@ func (c *SQS) TagQueueRequest(input *TagQueueInput) (req *request.Request, outpu
 //
 // See the AWS API reference guide for Amazon Simple Queue Service's
 // API operation TagQueue for usage and error information.
+//
+// Returned Error Types:
+//   * InvalidAddress
+//
+//   * RequestThrottled
+//
+//   * QueueDoesNotExist
+//   The specified queue doesn't exist.
+//
+//   * InvalidSecurity
+//
+//   * UnsupportedOperation
+//   Error code 400. Unsupported operation.
+//
 // See also, https://docs.aws.amazon.com/goto/WebAPI/sqs-2012-11-05/TagQueue
 func (c *SQS) TagQueue(input *TagQueueInput) (*TagQueueOutput, error) {
 	req, out := c.TagQueueRequest(input)
@@ -2104,6 +2354,20 @@ func (c *SQS) UntagQueueRequest(input *UntagQueueInput) (req *request.Request, o
 //
 // See the AWS API reference guide for Amazon Simple Queue Service's
 // API operation UntagQueue for usage and error information.
+//
+// Returned Error Types:
+//   * InvalidAddress
+//
+//   * RequestThrottled
+//
+//   * QueueDoesNotExist
+//   The specified queue doesn't exist.
+//
+//   * InvalidSecurity
+//
+//   * UnsupportedOperation
+//   Error code 400. Unsupported operation.
+//
 // See also, https://docs.aws.amazon.com/goto/WebAPI/sqs-2012-11-05/UntagQueue
 func (c *SQS) UntagQueue(input *UntagQueueInput) (*UntagQueueOutput, error) {
 	req, out := c.UntagQueueRequest(input)
@@ -2136,7 +2400,7 @@ type AddPermissionInput struct {
 	// in the Amazon SQS Developer Guide.
 	//
 	// AWSAccountIds is a required field
-	AWSAccountIds []*string `locationNameList:"AWSAccountId" type:"list" flattened:"true" required:"true"`
+	AWSAccountIds []*string `type:"list" flattened:"true" required:"true"`
 
 	// The action the client wants to allow for the specified principal. Valid values:
 	// the name of any action or *.
@@ -2150,7 +2414,7 @@ type AddPermissionInput struct {
 	// SendMessageBatch, DeleteMessageBatch, and ChangeMessageVisibilityBatch.
 	//
 	// Actions is a required field
-	Actions []*string `locationNameList:"ActionName" type:"list" flattened:"true" required:"true"`
+	Actions []*string `type:"list" flattened:"true" required:"true"`
 
 	// The unique identification of the permission you're setting (for example,
 	// AliceSendMessage). Maximum 80 characters. Allowed characters include alphanumeric
@@ -2253,6 +2517,134 @@ func (s AddPermissionOutput) GoString() string {
 	return s.String()
 }
 
+// Two or more batch entries in the request have the same Id.
+type BatchEntryIdsNotDistinct struct {
+	_            struct{}                  `type:"structure"`
+	RespMetadata protocol.ResponseMetadata `json:"-" xml:"-"`
+
+	Message_ *string `locationName:"message" type:"string"`
+}
+
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s BatchEntryIdsNotDistinct) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s BatchEntryIdsNotDistinct) GoString() string {
+	return s.String()
+}
+
+func newErrorBatchEntryIdsNotDistinct(v protocol.ResponseMetadata) error {
+	return &BatchEntryIdsNotDistinct{
+		RespMetadata: v,
+	}
+}
+
+// Code returns the exception type name.
+func (s *BatchEntryIdsNotDistinct) Code() string {
+	return "AWS.SimpleQueueService.BatchEntryIdsNotDistinct"
+}
+
+// Message returns the exception's message.
+func (s *BatchEntryIdsNotDistinct) Message() string {
+	if s.Message_ != nil {
+		return *s.Message_
+	}
+	return ""
+}
+
+// OrigErr always returns nil, satisfies awserr.Error interface.
+func (s *BatchEntryIdsNotDistinct) OrigErr() error {
+	return nil
+}
+
+func (s *BatchEntryIdsNotDistinct) Error() string {
+	return fmt.Sprintf("%s: %s", s.Code(), s.Message())
+}
+
+// Status code returns the HTTP status code for the request's response error.
+func (s *BatchEntryIdsNotDistinct) StatusCode() int {
+	return s.RespMetadata.StatusCode
+}
+
+// RequestID returns the service's response RequestID for request.
+func (s *BatchEntryIdsNotDistinct) RequestID() string {
+	return s.RespMetadata.RequestID
+}
+
+// The length of all the messages put together is more than the limit.
+type BatchRequestTooLong struct {
+	_            struct{}                  `type:"structure"`
+	RespMetadata protocol.ResponseMetadata `json:"-" xml:"-"`
+
+	Message_ *string `locationName:"message" type:"string"`
+}
+
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s BatchRequestTooLong) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s BatchRequestTooLong) GoString() string {
+	return s.String()
+}
+
+func newErrorBatchRequestTooLong(v protocol.ResponseMetadata) error {
+	return &BatchRequestTooLong{
+		RespMetadata: v,
+	}
+}
+
+// Code returns the exception type name.
+func (s *BatchRequestTooLong) Code() string {
+	return "AWS.SimpleQueueService.BatchRequestTooLong"
+}
+
+// Message returns the exception's message.
+func (s *BatchRequestTooLong) Message() string {
+	if s.Message_ != nil {
+		return *s.Message_
+	}
+	return ""
+}
+
+// OrigErr always returns nil, satisfies awserr.Error interface.
+func (s *BatchRequestTooLong) OrigErr() error {
+	return nil
+}
+
+func (s *BatchRequestTooLong) Error() string {
+	return fmt.Sprintf("%s: %s", s.Code(), s.Message())
+}
+
+// Status code returns the HTTP status code for the request's response error.
+func (s *BatchRequestTooLong) StatusCode() int {
+	return s.RespMetadata.StatusCode
+}
+
+// RequestID returns the service's response RequestID for request.
+func (s *BatchRequestTooLong) RequestID() string {
+	return s.RespMetadata.RequestID
+}
+
 // Gives a detailed description of the result of an action on each entry in
 // the request.
 type BatchResultErrorEntry struct {
@@ -2326,7 +2718,7 @@ type ChangeMessageVisibilityBatchInput struct {
 	// must be changed.
 	//
 	// Entries is a required field
-	Entries []*ChangeMessageVisibilityBatchRequestEntry `locationNameList:"ChangeMessageVisibilityBatchRequestEntry" type:"list" flattened:"true" required:"true"`
+	Entries []*ChangeMessageVisibilityBatchRequestEntry `type:"list" flattened:"true" required:"true"`
 
 	// The URL of the Amazon SQS queue whose messages' visibility is changed.
 	//
@@ -2401,12 +2793,12 @@ type ChangeMessageVisibilityBatchOutput struct {
 	// A list of BatchResultErrorEntry items.
 	//
 	// Failed is a required field
-	Failed []*BatchResultErrorEntry `locationNameList:"BatchResultErrorEntry" type:"list" flattened:"true" required:"true"`
+	Failed []*BatchResultErrorEntry `type:"list" flattened:"true" required:"true"`
 
 	// A list of ChangeMessageVisibilityBatchResultEntry items.
 	//
 	// Successful is a required field
-	Successful []*ChangeMessageVisibilityBatchResultEntry `locationNameList:"ChangeMessageVisibilityBatchResultEntry" type:"list" flattened:"true" required:"true"`
+	Successful []*ChangeMessageVisibilityBatchResultEntry `type:"list" flattened:"true" required:"true"`
 }
 
 // String returns the string representation.
@@ -2469,8 +2861,8 @@ type ChangeMessageVisibilityBatchRequestEntry struct {
 	// ReceiptHandle is a required field
 	ReceiptHandle *string `type:"string" required:"true"`
 
-	// The new value (in seconds) for the message's visibility timeout.
-	VisibilityTimeout *int64 `type:"integer"`
+	// VisibilityTimeout is a required field
+	VisibilityTimeout *int64 `type:"integer" required:"true"`
 }
 
 // String returns the string representation.
@@ -2499,6 +2891,9 @@ func (s *ChangeMessageVisibilityBatchRequestEntry) Validate() error {
 	}
 	if s.ReceiptHandle == nil {
 		invalidParams.Add(request.NewErrParamRequired("ReceiptHandle"))
+	}
+	if s.VisibilityTimeout == nil {
+		invalidParams.Add(request.NewErrParamRequired("VisibilityTimeout"))
 	}
 
 	if invalidParams.Len() > 0 {
@@ -2575,9 +2970,6 @@ type ChangeMessageVisibilityInput struct {
 	// ReceiptHandle is a required field
 	ReceiptHandle *string `type:"string" required:"true"`
 
-	// The new value for the message's visibility timeout (in seconds). Values range:
-	// 0 to 43200. Maximum: 12 hours.
-	//
 	// VisibilityTimeout is a required field
 	VisibilityTimeout *int64 `type:"integer" required:"true"`
 }
@@ -2784,7 +3176,7 @@ type CreateQueueInput struct {
 	//
 	// For information on throughput quotas, see Quotas related to messages (https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/quotas-messages.html)
 	// in the Amazon SQS Developer Guide.
-	Attributes map[string]*string `locationName:"Attribute" locationNameKey:"Name" locationNameValue:"Value" type:"map" flattened:"true"`
+	Attributes map[string]*string `type:"map" flattened:"true"`
 
 	// The name of the new queue. The following limits apply to this name:
 	//
@@ -2825,7 +3217,7 @@ type CreateQueueInput struct {
 	// Cross-account permissions don't apply to this action. For more information,
 	// see Grant cross-account permissions to a role and a user name (https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/sqs-customer-managed-policy-examples.html#grant-cross-account-permissions-to-role-and-user-name)
 	// in the Amazon SQS Developer Guide.
-	Tags map[string]*string `locationName:"Tag" locationNameKey:"Key" locationNameValue:"Value" type:"map" flattened:"true"`
+	Tags map[string]*string `locationName:"tags" type:"map" flattened:"true"`
 }
 
 // String returns the string representation.
@@ -2915,7 +3307,7 @@ type DeleteMessageBatchInput struct {
 	// A list of receipt handles for the messages to be deleted.
 	//
 	// Entries is a required field
-	Entries []*DeleteMessageBatchRequestEntry `locationNameList:"DeleteMessageBatchRequestEntry" type:"list" flattened:"true" required:"true"`
+	Entries []*DeleteMessageBatchRequestEntry `type:"list" flattened:"true" required:"true"`
 
 	// The URL of the Amazon SQS queue from which messages are deleted.
 	//
@@ -2990,12 +3382,12 @@ type DeleteMessageBatchOutput struct {
 	// A list of BatchResultErrorEntry items.
 	//
 	// Failed is a required field
-	Failed []*BatchResultErrorEntry `locationNameList:"BatchResultErrorEntry" type:"list" flattened:"true" required:"true"`
+	Failed []*BatchResultErrorEntry `type:"list" flattened:"true" required:"true"`
 
 	// A list of DeleteMessageBatchResultEntry items.
 	//
 	// Successful is a required field
-	Successful []*DeleteMessageBatchResultEntry `locationNameList:"DeleteMessageBatchResultEntry" type:"list" flattened:"true" required:"true"`
+	Successful []*DeleteMessageBatchResultEntry `type:"list" flattened:"true" required:"true"`
 }
 
 // String returns the string representation.
@@ -3283,6 +3675,70 @@ func (s DeleteQueueOutput) GoString() string {
 	return s.String()
 }
 
+// The batch request doesn't contain any entries.
+type EmptyBatchRequest struct {
+	_            struct{}                  `type:"structure"`
+	RespMetadata protocol.ResponseMetadata `json:"-" xml:"-"`
+
+	Message_ *string `locationName:"message" type:"string"`
+}
+
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s EmptyBatchRequest) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s EmptyBatchRequest) GoString() string {
+	return s.String()
+}
+
+func newErrorEmptyBatchRequest(v protocol.ResponseMetadata) error {
+	return &EmptyBatchRequest{
+		RespMetadata: v,
+	}
+}
+
+// Code returns the exception type name.
+func (s *EmptyBatchRequest) Code() string {
+	return "AWS.SimpleQueueService.EmptyBatchRequest"
+}
+
+// Message returns the exception's message.
+func (s *EmptyBatchRequest) Message() string {
+	if s.Message_ != nil {
+		return *s.Message_
+	}
+	return ""
+}
+
+// OrigErr always returns nil, satisfies awserr.Error interface.
+func (s *EmptyBatchRequest) OrigErr() error {
+	return nil
+}
+
+func (s *EmptyBatchRequest) Error() string {
+	return fmt.Sprintf("%s: %s", s.Code(), s.Message())
+}
+
+// Status code returns the HTTP status code for the request's response error.
+func (s *EmptyBatchRequest) StatusCode() int {
+	return s.RespMetadata.StatusCode
+}
+
+// RequestID returns the service's response RequestID for request.
+func (s *EmptyBatchRequest) RequestID() string {
+	return s.RespMetadata.RequestID
+}
+
 type GetQueueAttributesInput struct {
 	_ struct{} `type:"structure"`
 
@@ -3407,7 +3863,7 @@ type GetQueueAttributesInput struct {
 	//
 	// For information on throughput quotas, see Quotas related to messages (https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/quotas-messages.html)
 	// in the Amazon SQS Developer Guide.
-	AttributeNames []*string `locationNameList:"AttributeName" type:"list" flattened:"true" enum:"QueueAttributeName"`
+	AttributeNames []*string `type:"list" flattened:"true"`
 
 	// The URL of the Amazon SQS queue whose attribute information is retrieved.
 	//
@@ -3465,7 +3921,7 @@ type GetQueueAttributesOutput struct {
 	_ struct{} `type:"structure"`
 
 	// A map of attributes to their respective values.
-	Attributes map[string]*string `locationName:"Attribute" locationNameKey:"Name" locationNameValue:"Value" type:"map" flattened:"true"`
+	Attributes map[string]*string `type:"map" flattened:"true"`
 }
 
 // String returns the string representation.
@@ -3583,6 +4039,894 @@ func (s *GetQueueUrlOutput) SetQueueUrl(v string) *GetQueueUrlOutput {
 	return s
 }
 
+type InvalidAddress struct {
+	_            struct{}                  `type:"structure"`
+	RespMetadata protocol.ResponseMetadata `json:"-" xml:"-"`
+
+	Message_ *string `locationName:"message" type:"string"`
+}
+
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s InvalidAddress) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s InvalidAddress) GoString() string {
+	return s.String()
+}
+
+func newErrorInvalidAddress(v protocol.ResponseMetadata) error {
+	return &InvalidAddress{
+		RespMetadata: v,
+	}
+}
+
+// Code returns the exception type name.
+func (s *InvalidAddress) Code() string {
+	return "InvalidAddress"
+}
+
+// Message returns the exception's message.
+func (s *InvalidAddress) Message() string {
+	if s.Message_ != nil {
+		return *s.Message_
+	}
+	return ""
+}
+
+// OrigErr always returns nil, satisfies awserr.Error interface.
+func (s *InvalidAddress) OrigErr() error {
+	return nil
+}
+
+func (s *InvalidAddress) Error() string {
+	return fmt.Sprintf("%s: %s", s.Code(), s.Message())
+}
+
+// Status code returns the HTTP status code for the request's response error.
+func (s *InvalidAddress) StatusCode() int {
+	return s.RespMetadata.StatusCode
+}
+
+// RequestID returns the service's response RequestID for request.
+func (s *InvalidAddress) RequestID() string {
+	return s.RespMetadata.RequestID
+}
+
+// The specified attribute doesn't exist.
+type InvalidAttributeName struct {
+	_            struct{}                  `type:"structure"`
+	RespMetadata protocol.ResponseMetadata `json:"-" xml:"-"`
+
+	Message_ *string `locationName:"message" type:"string"`
+}
+
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s InvalidAttributeName) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s InvalidAttributeName) GoString() string {
+	return s.String()
+}
+
+func newErrorInvalidAttributeName(v protocol.ResponseMetadata) error {
+	return &InvalidAttributeName{
+		RespMetadata: v,
+	}
+}
+
+// Code returns the exception type name.
+func (s *InvalidAttributeName) Code() string {
+	return "InvalidAttributeName"
+}
+
+// Message returns the exception's message.
+func (s *InvalidAttributeName) Message() string {
+	if s.Message_ != nil {
+		return *s.Message_
+	}
+	return ""
+}
+
+// OrigErr always returns nil, satisfies awserr.Error interface.
+func (s *InvalidAttributeName) OrigErr() error {
+	return nil
+}
+
+func (s *InvalidAttributeName) Error() string {
+	return fmt.Sprintf("%s: %s", s.Code(), s.Message())
+}
+
+// Status code returns the HTTP status code for the request's response error.
+func (s *InvalidAttributeName) StatusCode() int {
+	return s.RespMetadata.StatusCode
+}
+
+// RequestID returns the service's response RequestID for request.
+func (s *InvalidAttributeName) RequestID() string {
+	return s.RespMetadata.RequestID
+}
+
+type InvalidAttributeValue struct {
+	_            struct{}                  `type:"structure"`
+	RespMetadata protocol.ResponseMetadata `json:"-" xml:"-"`
+
+	Message_ *string `locationName:"message" type:"string"`
+}
+
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s InvalidAttributeValue) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s InvalidAttributeValue) GoString() string {
+	return s.String()
+}
+
+func newErrorInvalidAttributeValue(v protocol.ResponseMetadata) error {
+	return &InvalidAttributeValue{
+		RespMetadata: v,
+	}
+}
+
+// Code returns the exception type name.
+func (s *InvalidAttributeValue) Code() string {
+	return "InvalidAttributeValue"
+}
+
+// Message returns the exception's message.
+func (s *InvalidAttributeValue) Message() string {
+	if s.Message_ != nil {
+		return *s.Message_
+	}
+	return ""
+}
+
+// OrigErr always returns nil, satisfies awserr.Error interface.
+func (s *InvalidAttributeValue) OrigErr() error {
+	return nil
+}
+
+func (s *InvalidAttributeValue) Error() string {
+	return fmt.Sprintf("%s: %s", s.Code(), s.Message())
+}
+
+// Status code returns the HTTP status code for the request's response error.
+func (s *InvalidAttributeValue) StatusCode() int {
+	return s.RespMetadata.StatusCode
+}
+
+// RequestID returns the service's response RequestID for request.
+func (s *InvalidAttributeValue) RequestID() string {
+	return s.RespMetadata.RequestID
+}
+
+// The Id of a batch entry in a batch request doesn't abide by the specification.
+type InvalidBatchEntryId struct {
+	_            struct{}                  `type:"structure"`
+	RespMetadata protocol.ResponseMetadata `json:"-" xml:"-"`
+
+	Message_ *string `locationName:"message" type:"string"`
+}
+
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s InvalidBatchEntryId) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s InvalidBatchEntryId) GoString() string {
+	return s.String()
+}
+
+func newErrorInvalidBatchEntryId(v protocol.ResponseMetadata) error {
+	return &InvalidBatchEntryId{
+		RespMetadata: v,
+	}
+}
+
+// Code returns the exception type name.
+func (s *InvalidBatchEntryId) Code() string {
+	return "AWS.SimpleQueueService.InvalidBatchEntryId"
+}
+
+// Message returns the exception's message.
+func (s *InvalidBatchEntryId) Message() string {
+	if s.Message_ != nil {
+		return *s.Message_
+	}
+	return ""
+}
+
+// OrigErr always returns nil, satisfies awserr.Error interface.
+func (s *InvalidBatchEntryId) OrigErr() error {
+	return nil
+}
+
+func (s *InvalidBatchEntryId) Error() string {
+	return fmt.Sprintf("%s: %s", s.Code(), s.Message())
+}
+
+// Status code returns the HTTP status code for the request's response error.
+func (s *InvalidBatchEntryId) StatusCode() int {
+	return s.RespMetadata.StatusCode
+}
+
+// RequestID returns the service's response RequestID for request.
+func (s *InvalidBatchEntryId) RequestID() string {
+	return s.RespMetadata.RequestID
+}
+
+// The specified receipt handle isn't valid for the current version.
+//
+// Deprecated: InvalidIdFormat has been deprecated
+type InvalidIdFormat struct {
+	_            struct{}                  `deprecated:"true" type:"structure"`
+	RespMetadata protocol.ResponseMetadata `json:"-" xml:"-"`
+
+	Message_ *string `locationName:"message" type:"string"`
+}
+
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s InvalidIdFormat) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s InvalidIdFormat) GoString() string {
+	return s.String()
+}
+
+func newErrorInvalidIdFormat(v protocol.ResponseMetadata) error {
+	return &InvalidIdFormat{
+		RespMetadata: v,
+	}
+}
+
+// Code returns the exception type name.
+func (s *InvalidIdFormat) Code() string {
+	return "InvalidIdFormat"
+}
+
+// Message returns the exception's message.
+func (s *InvalidIdFormat) Message() string {
+	if s.Message_ != nil {
+		return *s.Message_
+	}
+	return ""
+}
+
+// OrigErr always returns nil, satisfies awserr.Error interface.
+func (s *InvalidIdFormat) OrigErr() error {
+	return nil
+}
+
+func (s *InvalidIdFormat) Error() string {
+	return fmt.Sprintf("%s: %s", s.Code(), s.Message())
+}
+
+// Status code returns the HTTP status code for the request's response error.
+func (s *InvalidIdFormat) StatusCode() int {
+	return s.RespMetadata.StatusCode
+}
+
+// RequestID returns the service's response RequestID for request.
+func (s *InvalidIdFormat) RequestID() string {
+	return s.RespMetadata.RequestID
+}
+
+// The message contains characters outside the allowed set.
+type InvalidMessageContents struct {
+	_            struct{}                  `type:"structure"`
+	RespMetadata protocol.ResponseMetadata `json:"-" xml:"-"`
+
+	Message_ *string `locationName:"message" type:"string"`
+}
+
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s InvalidMessageContents) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s InvalidMessageContents) GoString() string {
+	return s.String()
+}
+
+func newErrorInvalidMessageContents(v protocol.ResponseMetadata) error {
+	return &InvalidMessageContents{
+		RespMetadata: v,
+	}
+}
+
+// Code returns the exception type name.
+func (s *InvalidMessageContents) Code() string {
+	return "InvalidMessageContents"
+}
+
+// Message returns the exception's message.
+func (s *InvalidMessageContents) Message() string {
+	if s.Message_ != nil {
+		return *s.Message_
+	}
+	return ""
+}
+
+// OrigErr always returns nil, satisfies awserr.Error interface.
+func (s *InvalidMessageContents) OrigErr() error {
+	return nil
+}
+
+func (s *InvalidMessageContents) Error() string {
+	return fmt.Sprintf("%s: %s", s.Code(), s.Message())
+}
+
+// Status code returns the HTTP status code for the request's response error.
+func (s *InvalidMessageContents) StatusCode() int {
+	return s.RespMetadata.StatusCode
+}
+
+// RequestID returns the service's response RequestID for request.
+func (s *InvalidMessageContents) RequestID() string {
+	return s.RespMetadata.RequestID
+}
+
+type InvalidSecurity struct {
+	_            struct{}                  `type:"structure"`
+	RespMetadata protocol.ResponseMetadata `json:"-" xml:"-"`
+
+	Message_ *string `locationName:"message" type:"string"`
+}
+
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s InvalidSecurity) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s InvalidSecurity) GoString() string {
+	return s.String()
+}
+
+func newErrorInvalidSecurity(v protocol.ResponseMetadata) error {
+	return &InvalidSecurity{
+		RespMetadata: v,
+	}
+}
+
+// Code returns the exception type name.
+func (s *InvalidSecurity) Code() string {
+	return "InvalidSecurity"
+}
+
+// Message returns the exception's message.
+func (s *InvalidSecurity) Message() string {
+	if s.Message_ != nil {
+		return *s.Message_
+	}
+	return ""
+}
+
+// OrigErr always returns nil, satisfies awserr.Error interface.
+func (s *InvalidSecurity) OrigErr() error {
+	return nil
+}
+
+func (s *InvalidSecurity) Error() string {
+	return fmt.Sprintf("%s: %s", s.Code(), s.Message())
+}
+
+// Status code returns the HTTP status code for the request's response error.
+func (s *InvalidSecurity) StatusCode() int {
+	return s.RespMetadata.StatusCode
+}
+
+// RequestID returns the service's response RequestID for request.
+func (s *InvalidSecurity) RequestID() string {
+	return s.RespMetadata.RequestID
+}
+
+type KmsAccessDenied struct {
+	_            struct{}                  `type:"structure"`
+	RespMetadata protocol.ResponseMetadata `json:"-" xml:"-"`
+
+	Message_ *string `locationName:"message" type:"string"`
+}
+
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s KmsAccessDenied) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s KmsAccessDenied) GoString() string {
+	return s.String()
+}
+
+func newErrorKmsAccessDenied(v protocol.ResponseMetadata) error {
+	return &KmsAccessDenied{
+		RespMetadata: v,
+	}
+}
+
+// Code returns the exception type name.
+func (s *KmsAccessDenied) Code() string {
+	return "KMS.AccessDeniedException"
+}
+
+// Message returns the exception's message.
+func (s *KmsAccessDenied) Message() string {
+	if s.Message_ != nil {
+		return *s.Message_
+	}
+	return ""
+}
+
+// OrigErr always returns nil, satisfies awserr.Error interface.
+func (s *KmsAccessDenied) OrigErr() error {
+	return nil
+}
+
+func (s *KmsAccessDenied) Error() string {
+	return fmt.Sprintf("%s: %s", s.Code(), s.Message())
+}
+
+// Status code returns the HTTP status code for the request's response error.
+func (s *KmsAccessDenied) StatusCode() int {
+	return s.RespMetadata.StatusCode
+}
+
+// RequestID returns the service's response RequestID for request.
+func (s *KmsAccessDenied) RequestID() string {
+	return s.RespMetadata.RequestID
+}
+
+type KmsDisabled struct {
+	_            struct{}                  `type:"structure"`
+	RespMetadata protocol.ResponseMetadata `json:"-" xml:"-"`
+
+	Message_ *string `locationName:"message" type:"string"`
+}
+
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s KmsDisabled) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s KmsDisabled) GoString() string {
+	return s.String()
+}
+
+func newErrorKmsDisabled(v protocol.ResponseMetadata) error {
+	return &KmsDisabled{
+		RespMetadata: v,
+	}
+}
+
+// Code returns the exception type name.
+func (s *KmsDisabled) Code() string {
+	return "KMS.DisabledException"
+}
+
+// Message returns the exception's message.
+func (s *KmsDisabled) Message() string {
+	if s.Message_ != nil {
+		return *s.Message_
+	}
+	return ""
+}
+
+// OrigErr always returns nil, satisfies awserr.Error interface.
+func (s *KmsDisabled) OrigErr() error {
+	return nil
+}
+
+func (s *KmsDisabled) Error() string {
+	return fmt.Sprintf("%s: %s", s.Code(), s.Message())
+}
+
+// Status code returns the HTTP status code for the request's response error.
+func (s *KmsDisabled) StatusCode() int {
+	return s.RespMetadata.StatusCode
+}
+
+// RequestID returns the service's response RequestID for request.
+func (s *KmsDisabled) RequestID() string {
+	return s.RespMetadata.RequestID
+}
+
+type KmsInvalidKeyUsage struct {
+	_            struct{}                  `type:"structure"`
+	RespMetadata protocol.ResponseMetadata `json:"-" xml:"-"`
+
+	Message_ *string `locationName:"message" type:"string"`
+}
+
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s KmsInvalidKeyUsage) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s KmsInvalidKeyUsage) GoString() string {
+	return s.String()
+}
+
+func newErrorKmsInvalidKeyUsage(v protocol.ResponseMetadata) error {
+	return &KmsInvalidKeyUsage{
+		RespMetadata: v,
+	}
+}
+
+// Code returns the exception type name.
+func (s *KmsInvalidKeyUsage) Code() string {
+	return "KMS.InvalidKeyUsageException"
+}
+
+// Message returns the exception's message.
+func (s *KmsInvalidKeyUsage) Message() string {
+	if s.Message_ != nil {
+		return *s.Message_
+	}
+	return ""
+}
+
+// OrigErr always returns nil, satisfies awserr.Error interface.
+func (s *KmsInvalidKeyUsage) OrigErr() error {
+	return nil
+}
+
+func (s *KmsInvalidKeyUsage) Error() string {
+	return fmt.Sprintf("%s: %s", s.Code(), s.Message())
+}
+
+// Status code returns the HTTP status code for the request's response error.
+func (s *KmsInvalidKeyUsage) StatusCode() int {
+	return s.RespMetadata.StatusCode
+}
+
+// RequestID returns the service's response RequestID for request.
+func (s *KmsInvalidKeyUsage) RequestID() string {
+	return s.RespMetadata.RequestID
+}
+
+type KmsInvalidState struct {
+	_            struct{}                  `type:"structure"`
+	RespMetadata protocol.ResponseMetadata `json:"-" xml:"-"`
+
+	Message_ *string `locationName:"message" type:"string"`
+}
+
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s KmsInvalidState) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s KmsInvalidState) GoString() string {
+	return s.String()
+}
+
+func newErrorKmsInvalidState(v protocol.ResponseMetadata) error {
+	return &KmsInvalidState{
+		RespMetadata: v,
+	}
+}
+
+// Code returns the exception type name.
+func (s *KmsInvalidState) Code() string {
+	return "KMS.InvalidStateException"
+}
+
+// Message returns the exception's message.
+func (s *KmsInvalidState) Message() string {
+	if s.Message_ != nil {
+		return *s.Message_
+	}
+	return ""
+}
+
+// OrigErr always returns nil, satisfies awserr.Error interface.
+func (s *KmsInvalidState) OrigErr() error {
+	return nil
+}
+
+func (s *KmsInvalidState) Error() string {
+	return fmt.Sprintf("%s: %s", s.Code(), s.Message())
+}
+
+// Status code returns the HTTP status code for the request's response error.
+func (s *KmsInvalidState) StatusCode() int {
+	return s.RespMetadata.StatusCode
+}
+
+// RequestID returns the service's response RequestID for request.
+func (s *KmsInvalidState) RequestID() string {
+	return s.RespMetadata.RequestID
+}
+
+type KmsNotFound struct {
+	_            struct{}                  `type:"structure"`
+	RespMetadata protocol.ResponseMetadata `json:"-" xml:"-"`
+
+	Message_ *string `locationName:"message" type:"string"`
+}
+
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s KmsNotFound) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s KmsNotFound) GoString() string {
+	return s.String()
+}
+
+func newErrorKmsNotFound(v protocol.ResponseMetadata) error {
+	return &KmsNotFound{
+		RespMetadata: v,
+	}
+}
+
+// Code returns the exception type name.
+func (s *KmsNotFound) Code() string {
+	return "KMS.NotFoundException"
+}
+
+// Message returns the exception's message.
+func (s *KmsNotFound) Message() string {
+	if s.Message_ != nil {
+		return *s.Message_
+	}
+	return ""
+}
+
+// OrigErr always returns nil, satisfies awserr.Error interface.
+func (s *KmsNotFound) OrigErr() error {
+	return nil
+}
+
+func (s *KmsNotFound) Error() string {
+	return fmt.Sprintf("%s: %s", s.Code(), s.Message())
+}
+
+// Status code returns the HTTP status code for the request's response error.
+func (s *KmsNotFound) StatusCode() int {
+	return s.RespMetadata.StatusCode
+}
+
+// RequestID returns the service's response RequestID for request.
+func (s *KmsNotFound) RequestID() string {
+	return s.RespMetadata.RequestID
+}
+
+type KmsOptInRequired struct {
+	_            struct{}                  `type:"structure"`
+	RespMetadata protocol.ResponseMetadata `json:"-" xml:"-"`
+
+	Message_ *string `locationName:"message" type:"string"`
+}
+
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s KmsOptInRequired) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s KmsOptInRequired) GoString() string {
+	return s.String()
+}
+
+func newErrorKmsOptInRequired(v protocol.ResponseMetadata) error {
+	return &KmsOptInRequired{
+		RespMetadata: v,
+	}
+}
+
+// Code returns the exception type name.
+func (s *KmsOptInRequired) Code() string {
+	return "KMS.OptInRequired"
+}
+
+// Message returns the exception's message.
+func (s *KmsOptInRequired) Message() string {
+	if s.Message_ != nil {
+		return *s.Message_
+	}
+	return ""
+}
+
+// OrigErr always returns nil, satisfies awserr.Error interface.
+func (s *KmsOptInRequired) OrigErr() error {
+	return nil
+}
+
+func (s *KmsOptInRequired) Error() string {
+	return fmt.Sprintf("%s: %s", s.Code(), s.Message())
+}
+
+// Status code returns the HTTP status code for the request's response error.
+func (s *KmsOptInRequired) StatusCode() int {
+	return s.RespMetadata.StatusCode
+}
+
+// RequestID returns the service's response RequestID for request.
+func (s *KmsOptInRequired) RequestID() string {
+	return s.RespMetadata.RequestID
+}
+
+type KmsThrottled struct {
+	_            struct{}                  `type:"structure"`
+	RespMetadata protocol.ResponseMetadata `json:"-" xml:"-"`
+
+	Message_ *string `locationName:"message" type:"string"`
+}
+
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s KmsThrottled) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s KmsThrottled) GoString() string {
+	return s.String()
+}
+
+func newErrorKmsThrottled(v protocol.ResponseMetadata) error {
+	return &KmsThrottled{
+		RespMetadata: v,
+	}
+}
+
+// Code returns the exception type name.
+func (s *KmsThrottled) Code() string {
+	return "KMS.ThrottlingException"
+}
+
+// Message returns the exception's message.
+func (s *KmsThrottled) Message() string {
+	if s.Message_ != nil {
+		return *s.Message_
+	}
+	return ""
+}
+
+// OrigErr always returns nil, satisfies awserr.Error interface.
+func (s *KmsThrottled) OrigErr() error {
+	return nil
+}
+
+func (s *KmsThrottled) Error() string {
+	return fmt.Sprintf("%s: %s", s.Code(), s.Message())
+}
+
+// Status code returns the HTTP status code for the request's response error.
+func (s *KmsThrottled) StatusCode() int {
+	return s.RespMetadata.StatusCode
+}
+
+// RequestID returns the service's response RequestID for request.
+func (s *KmsThrottled) RequestID() string {
+	return s.RespMetadata.RequestID
+}
+
 type ListDeadLetterSourceQueuesInput struct {
 	_ struct{} `type:"structure"`
 
@@ -3663,7 +5007,7 @@ type ListDeadLetterSourceQueuesOutput struct {
 	// with a dead-letter queue.
 	//
 	// QueueUrls is a required field
-	QueueUrls []*string `locationName:"queueUrls" locationNameList:"QueueUrl" type:"list" flattened:"true" required:"true"`
+	QueueUrls []*string `locationName:"queueUrls" type:"list" flattened:"true" required:"true"`
 }
 
 // String returns the string representation.
@@ -3746,7 +5090,7 @@ type ListQueueTagsOutput struct {
 	_ struct{} `type:"structure"`
 
 	// The list of all tags added to the specified queue.
-	Tags map[string]*string `locationName:"Tag" locationNameKey:"Key" locationNameValue:"Value" type:"map" flattened:"true"`
+	Tags map[string]*string `type:"map" flattened:"true"`
 }
 
 // String returns the string representation.
@@ -3837,7 +5181,7 @@ type ListQueuesOutput struct {
 
 	// A list of queue URLs, up to 1,000 entries, or the value of MaxResults that
 	// you sent in the request.
-	QueueUrls []*string `locationNameList:"QueueUrl" type:"list" flattened:"true"`
+	QueueUrls []*string `type:"list" flattened:"true"`
 }
 
 // String returns the string representation.
@@ -3894,7 +5238,7 @@ type Message struct {
 	// ApproximateFirstReceiveTimestamp and SentTimestamp are each returned as an
 	// integer representing the epoch time (http://en.wikipedia.org/wiki/Unix_time)
 	// in milliseconds.
-	Attributes map[string]*string `locationName:"Attribute" locationNameKey:"Name" locationNameValue:"Value" type:"map" flattened:"true"`
+	Attributes map[string]*string `type:"map" flattened:"true"`
 
 	// The message's contents (not URL-encoded).
 	Body *string `type:"string"`
@@ -3911,7 +5255,7 @@ type Message struct {
 	// Each message attribute consists of a Name, Type, and Value. For more information,
 	// see Amazon SQS message attributes (https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/sqs-message-metadata.html#sqs-message-attributes)
 	// in the Amazon SQS Developer Guide.
-	MessageAttributes map[string]*MessageAttributeValue `locationName:"MessageAttribute" locationNameKey:"Name" locationNameValue:"Value" type:"map" flattened:"true"`
+	MessageAttributes map[string]*MessageAttributeValue `type:"map" flattened:"true"`
 
 	// A unique identifier for the message. A MessageIdis considered unique across
 	// all Amazon Web Services accounts for an extended period of time.
@@ -3994,7 +5338,7 @@ type MessageAttributeValue struct {
 	_ struct{} `type:"structure"`
 
 	// Not implemented. Reserved for future use.
-	BinaryListValues [][]byte `locationName:"BinaryListValue" locationNameList:"BinaryListValue" type:"list" flattened:"true"`
+	BinaryListValues [][]byte `type:"list" flattened:"true"`
 
 	// Binary type attributes can store any binary data, such as compressed data,
 	// encrypted data, or images.
@@ -4012,7 +5356,7 @@ type MessageAttributeValue struct {
 	DataType *string `type:"string" required:"true"`
 
 	// Not implemented. Reserved for future use.
-	StringListValues []*string `locationName:"StringListValue" locationNameList:"StringListValue" type:"list" flattened:"true"`
+	StringListValues []*string `type:"list" flattened:"true"`
 
 	// Strings are Unicode with UTF-8 binary encoding. For a list of code values,
 	// see ASCII Printable Characters (http://en.wikipedia.org/wiki/ASCII#ASCII_printable_characters).
@@ -4080,6 +5424,70 @@ func (s *MessageAttributeValue) SetStringValue(v string) *MessageAttributeValue 
 	return s
 }
 
+// The specified message isn't in flight.
+type MessageNotInflight struct {
+	_            struct{}                  `type:"structure"`
+	RespMetadata protocol.ResponseMetadata `json:"-" xml:"-"`
+
+	Message_ *string `locationName:"message" type:"string"`
+}
+
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s MessageNotInflight) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s MessageNotInflight) GoString() string {
+	return s.String()
+}
+
+func newErrorMessageNotInflight(v protocol.ResponseMetadata) error {
+	return &MessageNotInflight{
+		RespMetadata: v,
+	}
+}
+
+// Code returns the exception type name.
+func (s *MessageNotInflight) Code() string {
+	return "AWS.SimpleQueueService.MessageNotInflight"
+}
+
+// Message returns the exception's message.
+func (s *MessageNotInflight) Message() string {
+	if s.Message_ != nil {
+		return *s.Message_
+	}
+	return ""
+}
+
+// OrigErr always returns nil, satisfies awserr.Error interface.
+func (s *MessageNotInflight) OrigErr() error {
+	return nil
+}
+
+func (s *MessageNotInflight) Error() string {
+	return fmt.Sprintf("%s: %s", s.Code(), s.Message())
+}
+
+// Status code returns the HTTP status code for the request's response error.
+func (s *MessageNotInflight) StatusCode() int {
+	return s.RespMetadata.StatusCode
+}
+
+// RequestID returns the service's response RequestID for request.
+func (s *MessageNotInflight) RequestID() string {
+	return s.RespMetadata.RequestID
+}
+
 // The user-specified message system attribute value. For string data types,
 // the Value attribute has the same restrictions on the content as the message
 // body. For more information, see SendMessage.
@@ -4089,7 +5497,7 @@ type MessageSystemAttributeValue struct {
 	_ struct{} `type:"structure"`
 
 	// Not implemented. Reserved for future use.
-	BinaryListValues [][]byte `locationName:"BinaryListValue" locationNameList:"BinaryListValue" type:"list" flattened:"true"`
+	BinaryListValues [][]byte `type:"list" flattened:"true"`
 
 	// Binary type attributes can store any binary data, such as compressed data,
 	// encrypted data, or images.
@@ -4107,7 +5515,7 @@ type MessageSystemAttributeValue struct {
 	DataType *string `type:"string" required:"true"`
 
 	// Not implemented. Reserved for future use.
-	StringListValues []*string `locationName:"StringListValue" locationNameList:"StringListValue" type:"list" flattened:"true"`
+	StringListValues []*string `type:"list" flattened:"true"`
 
 	// Strings are Unicode with UTF-8 binary encoding. For a list of code values,
 	// see ASCII Printable Characters (http://en.wikipedia.org/wiki/ASCII#ASCII_printable_characters).
@@ -4173,6 +5581,139 @@ func (s *MessageSystemAttributeValue) SetStringListValues(v []*string) *MessageS
 func (s *MessageSystemAttributeValue) SetStringValue(v string) *MessageSystemAttributeValue {
 	s.StringValue = &v
 	return s
+}
+
+// The specified action violates a limit. For example, ReceiveMessage returns
+// this error if the maximum number of inflight messages is reached and AddPermission
+// returns this error if the maximum number of permissions for the queue is
+// reached.
+type OverLimit struct {
+	_            struct{}                  `type:"structure"`
+	RespMetadata protocol.ResponseMetadata `json:"-" xml:"-"`
+
+	Message_ *string `locationName:"message" type:"string"`
+}
+
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s OverLimit) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s OverLimit) GoString() string {
+	return s.String()
+}
+
+func newErrorOverLimit(v protocol.ResponseMetadata) error {
+	return &OverLimit{
+		RespMetadata: v,
+	}
+}
+
+// Code returns the exception type name.
+func (s *OverLimit) Code() string {
+	return "OverLimit"
+}
+
+// Message returns the exception's message.
+func (s *OverLimit) Message() string {
+	if s.Message_ != nil {
+		return *s.Message_
+	}
+	return ""
+}
+
+// OrigErr always returns nil, satisfies awserr.Error interface.
+func (s *OverLimit) OrigErr() error {
+	return nil
+}
+
+func (s *OverLimit) Error() string {
+	return fmt.Sprintf("%s: %s", s.Code(), s.Message())
+}
+
+// Status code returns the HTTP status code for the request's response error.
+func (s *OverLimit) StatusCode() int {
+	return s.RespMetadata.StatusCode
+}
+
+// RequestID returns the service's response RequestID for request.
+func (s *OverLimit) RequestID() string {
+	return s.RespMetadata.RequestID
+}
+
+// Indicates that the specified queue previously received a PurgeQueue request
+// within the last 60 seconds (the time it can take to delete the messages in
+// the queue).
+type PurgeQueueInProgress struct {
+	_            struct{}                  `type:"structure"`
+	RespMetadata protocol.ResponseMetadata `json:"-" xml:"-"`
+
+	Message_ *string `locationName:"message" type:"string"`
+}
+
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s PurgeQueueInProgress) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s PurgeQueueInProgress) GoString() string {
+	return s.String()
+}
+
+func newErrorPurgeQueueInProgress(v protocol.ResponseMetadata) error {
+	return &PurgeQueueInProgress{
+		RespMetadata: v,
+	}
+}
+
+// Code returns the exception type name.
+func (s *PurgeQueueInProgress) Code() string {
+	return "AWS.SimpleQueueService.PurgeQueueInProgress"
+}
+
+// Message returns the exception's message.
+func (s *PurgeQueueInProgress) Message() string {
+	if s.Message_ != nil {
+		return *s.Message_
+	}
+	return ""
+}
+
+// OrigErr always returns nil, satisfies awserr.Error interface.
+func (s *PurgeQueueInProgress) OrigErr() error {
+	return nil
+}
+
+func (s *PurgeQueueInProgress) Error() string {
+	return fmt.Sprintf("%s: %s", s.Code(), s.Message())
+}
+
+// Status code returns the HTTP status code for the request's response error.
+func (s *PurgeQueueInProgress) StatusCode() int {
+	return s.RespMetadata.StatusCode
+}
+
+// RequestID returns the service's response RequestID for request.
+func (s *PurgeQueueInProgress) RequestID() string {
+	return s.RespMetadata.RequestID
 }
 
 type PurgeQueueInput struct {
@@ -4245,6 +5786,265 @@ func (s PurgeQueueOutput) GoString() string {
 	return s.String()
 }
 
+// You must wait 60 seconds after deleting a queue before you can create another
+// queue with the same name.
+type QueueDeletedRecently struct {
+	_            struct{}                  `type:"structure"`
+	RespMetadata protocol.ResponseMetadata `json:"-" xml:"-"`
+
+	Message_ *string `locationName:"message" type:"string"`
+}
+
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s QueueDeletedRecently) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s QueueDeletedRecently) GoString() string {
+	return s.String()
+}
+
+func newErrorQueueDeletedRecently(v protocol.ResponseMetadata) error {
+	return &QueueDeletedRecently{
+		RespMetadata: v,
+	}
+}
+
+// Code returns the exception type name.
+func (s *QueueDeletedRecently) Code() string {
+	return "AWS.SimpleQueueService.QueueDeletedRecently"
+}
+
+// Message returns the exception's message.
+func (s *QueueDeletedRecently) Message() string {
+	if s.Message_ != nil {
+		return *s.Message_
+	}
+	return ""
+}
+
+// OrigErr always returns nil, satisfies awserr.Error interface.
+func (s *QueueDeletedRecently) OrigErr() error {
+	return nil
+}
+
+func (s *QueueDeletedRecently) Error() string {
+	return fmt.Sprintf("%s: %s", s.Code(), s.Message())
+}
+
+// Status code returns the HTTP status code for the request's response error.
+func (s *QueueDeletedRecently) StatusCode() int {
+	return s.RespMetadata.StatusCode
+}
+
+// RequestID returns the service's response RequestID for request.
+func (s *QueueDeletedRecently) RequestID() string {
+	return s.RespMetadata.RequestID
+}
+
+// The specified queue doesn't exist.
+type QueueDoesNotExist struct {
+	_            struct{}                  `type:"structure"`
+	RespMetadata protocol.ResponseMetadata `json:"-" xml:"-"`
+
+	Message_ *string `locationName:"message" type:"string"`
+}
+
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s QueueDoesNotExist) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s QueueDoesNotExist) GoString() string {
+	return s.String()
+}
+
+func newErrorQueueDoesNotExist(v protocol.ResponseMetadata) error {
+	return &QueueDoesNotExist{
+		RespMetadata: v,
+	}
+}
+
+// Code returns the exception type name.
+func (s *QueueDoesNotExist) Code() string {
+	return "AWS.SimpleQueueService.NonExistentQueue"
+}
+
+// Message returns the exception's message.
+func (s *QueueDoesNotExist) Message() string {
+	if s.Message_ != nil {
+		return *s.Message_
+	}
+	return ""
+}
+
+// OrigErr always returns nil, satisfies awserr.Error interface.
+func (s *QueueDoesNotExist) OrigErr() error {
+	return nil
+}
+
+func (s *QueueDoesNotExist) Error() string {
+	return fmt.Sprintf("%s: %s", s.Code(), s.Message())
+}
+
+// Status code returns the HTTP status code for the request's response error.
+func (s *QueueDoesNotExist) StatusCode() int {
+	return s.RespMetadata.StatusCode
+}
+
+// RequestID returns the service's response RequestID for request.
+func (s *QueueDoesNotExist) RequestID() string {
+	return s.RespMetadata.RequestID
+}
+
+// A queue with this name already exists. Amazon SQS returns this error only
+// if the request includes attributes whose values differ from those of the
+// existing queue.
+type QueueNameExists struct {
+	_            struct{}                  `type:"structure"`
+	RespMetadata protocol.ResponseMetadata `json:"-" xml:"-"`
+
+	Message_ *string `locationName:"message" type:"string"`
+}
+
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s QueueNameExists) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s QueueNameExists) GoString() string {
+	return s.String()
+}
+
+func newErrorQueueNameExists(v protocol.ResponseMetadata) error {
+	return &QueueNameExists{
+		RespMetadata: v,
+	}
+}
+
+// Code returns the exception type name.
+func (s *QueueNameExists) Code() string {
+	return "QueueAlreadyExists"
+}
+
+// Message returns the exception's message.
+func (s *QueueNameExists) Message() string {
+	if s.Message_ != nil {
+		return *s.Message_
+	}
+	return ""
+}
+
+// OrigErr always returns nil, satisfies awserr.Error interface.
+func (s *QueueNameExists) OrigErr() error {
+	return nil
+}
+
+func (s *QueueNameExists) Error() string {
+	return fmt.Sprintf("%s: %s", s.Code(), s.Message())
+}
+
+// Status code returns the HTTP status code for the request's response error.
+func (s *QueueNameExists) StatusCode() int {
+	return s.RespMetadata.StatusCode
+}
+
+// RequestID returns the service's response RequestID for request.
+func (s *QueueNameExists) RequestID() string {
+	return s.RespMetadata.RequestID
+}
+
+// The specified receipt handle isn't valid.
+type ReceiptHandleIsInvalid struct {
+	_            struct{}                  `type:"structure"`
+	RespMetadata protocol.ResponseMetadata `json:"-" xml:"-"`
+
+	Message_ *string `locationName:"message" type:"string"`
+}
+
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s ReceiptHandleIsInvalid) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s ReceiptHandleIsInvalid) GoString() string {
+	return s.String()
+}
+
+func newErrorReceiptHandleIsInvalid(v protocol.ResponseMetadata) error {
+	return &ReceiptHandleIsInvalid{
+		RespMetadata: v,
+	}
+}
+
+// Code returns the exception type name.
+func (s *ReceiptHandleIsInvalid) Code() string {
+	return "ReceiptHandleIsInvalid"
+}
+
+// Message returns the exception's message.
+func (s *ReceiptHandleIsInvalid) Message() string {
+	if s.Message_ != nil {
+		return *s.Message_
+	}
+	return ""
+}
+
+// OrigErr always returns nil, satisfies awserr.Error interface.
+func (s *ReceiptHandleIsInvalid) OrigErr() error {
+	return nil
+}
+
+func (s *ReceiptHandleIsInvalid) Error() string {
+	return fmt.Sprintf("%s: %s", s.Code(), s.Message())
+}
+
+// Status code returns the HTTP status code for the request's response error.
+func (s *ReceiptHandleIsInvalid) StatusCode() int {
+	return s.RespMetadata.StatusCode
+}
+
+// RequestID returns the service's response RequestID for request.
+func (s *ReceiptHandleIsInvalid) RequestID() string {
+	return s.RespMetadata.RequestID
+}
+
 type ReceiveMessageInput struct {
 	_ struct{} `type:"structure"`
 
@@ -4281,11 +6081,8 @@ type ReceiveMessageInput struct {
 	//    in sequence.
 	//
 	//    * SequenceNumber – Returns the value provided by Amazon SQS.
-	AttributeNames []*string `locationNameList:"AttributeName" type:"list" flattened:"true" enum:"QueueAttributeName"`
+	AttributeNames []*string `type:"list" flattened:"true"`
 
-	// The maximum number of messages to return. Amazon SQS never returns more messages
-	// than this value (however, fewer messages might be returned). Valid values:
-	// 1 to 10. Default: 1.
 	MaxNumberOfMessages *int64 `type:"integer"`
 
 	// The name of the message attribute, where N is the index.
@@ -4308,7 +6105,7 @@ type ReceiveMessageInput struct {
 	// or you can return all of the attributes by specifying All or .* in your request.
 	// You can also use all message attributes starting with a prefix, for example
 	// bar.*.
-	MessageAttributeNames []*string `locationNameList:"MessageAttributeName" type:"list" flattened:"true"`
+	MessageAttributeNames []*string `type:"list" flattened:"true"`
 
 	// The URL of the Amazon SQS queue from which messages are received.
 	//
@@ -4368,21 +6165,8 @@ type ReceiveMessageInput struct {
 	// in the Amazon SQS Developer Guide.
 	ReceiveRequestAttemptId *string `type:"string"`
 
-	// The duration (in seconds) that the received messages are hidden from subsequent
-	// retrieve requests after being retrieved by a ReceiveMessage request.
 	VisibilityTimeout *int64 `type:"integer"`
 
-	// The duration (in seconds) for which the call waits for a message to arrive
-	// in the queue before returning. If a message is available, the call returns
-	// sooner than WaitTimeSeconds. If no messages are available and the wait time
-	// expires, the call returns successfully with an empty list of messages.
-	//
-	// To avoid HTTP errors, ensure that the HTTP response timeout for ReceiveMessage
-	// requests is longer than the WaitTimeSeconds parameter. For example, with
-	// the Java SDK, you can set HTTP transport settings using the NettyNioAsyncHttpClient
-	// (https://sdk.amazonaws.com/java/api/latest/software/amazon/awssdk/http/nio/netty/NettyNioAsyncHttpClient.html)
-	// for asynchronous clients, or the ApacheHttpClient (https://sdk.amazonaws.com/java/api/latest/software/amazon/awssdk/http/apache/ApacheHttpClient.html)
-	// for synchronous clients.
 	WaitTimeSeconds *int64 `type:"integer"`
 }
 
@@ -4464,7 +6248,7 @@ type ReceiveMessageOutput struct {
 	_ struct{} `type:"structure"`
 
 	// A list of messages.
-	Messages []*Message `locationNameList:"Message" type:"list" flattened:"true"`
+	Messages []*Message `type:"list" flattened:"true"`
 }
 
 // String returns the string representation.
@@ -4576,13 +6360,76 @@ func (s RemovePermissionOutput) GoString() string {
 	return s.String()
 }
 
+type RequestThrottled struct {
+	_            struct{}                  `type:"structure"`
+	RespMetadata protocol.ResponseMetadata `json:"-" xml:"-"`
+
+	Message_ *string `locationName:"message" type:"string"`
+}
+
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s RequestThrottled) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s RequestThrottled) GoString() string {
+	return s.String()
+}
+
+func newErrorRequestThrottled(v protocol.ResponseMetadata) error {
+	return &RequestThrottled{
+		RespMetadata: v,
+	}
+}
+
+// Code returns the exception type name.
+func (s *RequestThrottled) Code() string {
+	return "RequestThrottled"
+}
+
+// Message returns the exception's message.
+func (s *RequestThrottled) Message() string {
+	if s.Message_ != nil {
+		return *s.Message_
+	}
+	return ""
+}
+
+// OrigErr always returns nil, satisfies awserr.Error interface.
+func (s *RequestThrottled) OrigErr() error {
+	return nil
+}
+
+func (s *RequestThrottled) Error() string {
+	return fmt.Sprintf("%s: %s", s.Code(), s.Message())
+}
+
+// Status code returns the HTTP status code for the request's response error.
+func (s *RequestThrottled) StatusCode() int {
+	return s.RespMetadata.StatusCode
+}
+
+// RequestID returns the service's response RequestID for request.
+func (s *RequestThrottled) RequestID() string {
+	return s.RespMetadata.RequestID
+}
+
 type SendMessageBatchInput struct {
 	_ struct{} `type:"structure"`
 
 	// A list of SendMessageBatchRequestEntry items.
 	//
 	// Entries is a required field
-	Entries []*SendMessageBatchRequestEntry `locationNameList:"SendMessageBatchRequestEntry" type:"list" flattened:"true" required:"true"`
+	Entries []*SendMessageBatchRequestEntry `type:"list" flattened:"true" required:"true"`
 
 	// The URL of the Amazon SQS queue to which batched messages are sent.
 	//
@@ -4658,12 +6505,12 @@ type SendMessageBatchOutput struct {
 	// that can't be enqueued.
 	//
 	// Failed is a required field
-	Failed []*BatchResultErrorEntry `locationNameList:"BatchResultErrorEntry" type:"list" flattened:"true" required:"true"`
+	Failed []*BatchResultErrorEntry `type:"list" flattened:"true" required:"true"`
 
 	// A list of SendMessageBatchResultEntry items.
 	//
 	// Successful is a required field
-	Successful []*SendMessageBatchResultEntry `locationNameList:"SendMessageBatchResultEntry" type:"list" flattened:"true" required:"true"`
+	Successful []*SendMessageBatchResultEntry `type:"list" flattened:"true" required:"true"`
 }
 
 // String returns the string representation.
@@ -4700,13 +6547,6 @@ func (s *SendMessageBatchOutput) SetSuccessful(v []*SendMessageBatchResultEntry)
 type SendMessageBatchRequestEntry struct {
 	_ struct{} `type:"structure"`
 
-	// The length of time, in seconds, for which a specific message is delayed.
-	// Valid values: 0 to 900. Maximum: 15 minutes. Messages with a positive DelaySeconds
-	// value become available for processing after the delay period is finished.
-	// If you don't specify a value, the default value for the queue is applied.
-	//
-	// When you set FifoQueue, you can't set DelaySeconds per message. You can set
-	// this parameter only on a queue level.
 	DelaySeconds *int64 `type:"integer"`
 
 	// An identifier for a message in this batch used to communicate the result.
@@ -4722,7 +6562,7 @@ type SendMessageBatchRequestEntry struct {
 	// Each message attribute consists of a Name, Type, and Value. For more information,
 	// see Amazon SQS message attributes (https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/sqs-message-metadata.html#sqs-message-attributes)
 	// in the Amazon SQS Developer Guide.
-	MessageAttributes map[string]*MessageAttributeValue `locationName:"MessageAttribute" locationNameKey:"Name" locationNameValue:"Value" type:"map" flattened:"true"`
+	MessageAttributes map[string]*MessageAttributeValue `type:"map" flattened:"true"`
 
 	// The body of the message.
 	//
@@ -4810,7 +6650,7 @@ type SendMessageBatchRequestEntry struct {
 	//
 	//    * The size of a message system attribute doesn't count towards the total
 	//    size of a message.
-	MessageSystemAttributes map[string]*MessageSystemAttributeValue `locationName:"MessageSystemAttribute" locationNameKey:"Name" locationNameValue:"Value" type:"map" flattened:"true"`
+	MessageSystemAttributes map[string]*MessageSystemAttributeValue `type:"map" flattened:"true"`
 }
 
 // String returns the string representation.
@@ -5009,19 +6849,12 @@ func (s *SendMessageBatchResultEntry) SetSequenceNumber(v string) *SendMessageBa
 type SendMessageInput struct {
 	_ struct{} `type:"structure"`
 
-	// The length of time, in seconds, for which to delay a specific message. Valid
-	// values: 0 to 900. Maximum: 15 minutes. Messages with a positive DelaySeconds
-	// value become available for processing after the delay period is finished.
-	// If you don't specify a value, the default value for the queue applies.
-	//
-	// When you set FifoQueue, you can't set DelaySeconds per message. You can set
-	// this parameter only on a queue level.
 	DelaySeconds *int64 `type:"integer"`
 
 	// Each message attribute consists of a Name, Type, and Value. For more information,
 	// see Amazon SQS message attributes (https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/sqs-message-metadata.html#sqs-message-attributes)
 	// in the Amazon SQS Developer Guide.
-	MessageAttributes map[string]*MessageAttributeValue `locationName:"MessageAttribute" locationNameKey:"Name" locationNameValue:"Value" type:"map" flattened:"true"`
+	MessageAttributes map[string]*MessageAttributeValue `type:"map" flattened:"true"`
 
 	// The message to send. The minimum size is one character. The maximum size
 	// is 256 KB.
@@ -5119,7 +6952,7 @@ type SendMessageInput struct {
 	//
 	//    * The size of a message system attribute doesn't count towards the total
 	//    size of a message.
-	MessageSystemAttributes map[string]*MessageSystemAttributeValue `locationName:"MessageSystemAttribute" locationNameKey:"Name" locationNameValue:"Value" type:"map" flattened:"true"`
+	MessageSystemAttributes map[string]*MessageSystemAttributeValue `type:"map" flattened:"true"`
 
 	// The URL of the Amazon SQS queue to which a message is sent.
 	//
@@ -5427,7 +7260,7 @@ type SetQueueAttributesInput struct {
 	// in the Amazon SQS Developer Guide.
 	//
 	// Attributes is a required field
-	Attributes map[string]*string `locationName:"Attribute" locationNameKey:"Name" locationNameValue:"Value" type:"map" flattened:"true" required:"true"`
+	Attributes map[string]*string `type:"map" flattened:"true" required:"true"`
 
 	// The URL of the Amazon SQS queue whose attributes are set.
 	//
@@ -5516,7 +7349,7 @@ type TagQueueInput struct {
 	// The list of tags to be added to the specified queue.
 	//
 	// Tags is a required field
-	Tags map[string]*string `locationName:"Tag" locationNameKey:"Key" locationNameValue:"Value" type:"map" flattened:"true" required:"true"`
+	Tags map[string]*string `type:"map" flattened:"true" required:"true"`
 }
 
 // String returns the string representation.
@@ -5587,6 +7420,134 @@ func (s TagQueueOutput) GoString() string {
 	return s.String()
 }
 
+// The batch request contains more entries than permissible.
+type TooManyEntriesInBatchRequest struct {
+	_            struct{}                  `type:"structure"`
+	RespMetadata protocol.ResponseMetadata `json:"-" xml:"-"`
+
+	Message_ *string `locationName:"message" type:"string"`
+}
+
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s TooManyEntriesInBatchRequest) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s TooManyEntriesInBatchRequest) GoString() string {
+	return s.String()
+}
+
+func newErrorTooManyEntriesInBatchRequest(v protocol.ResponseMetadata) error {
+	return &TooManyEntriesInBatchRequest{
+		RespMetadata: v,
+	}
+}
+
+// Code returns the exception type name.
+func (s *TooManyEntriesInBatchRequest) Code() string {
+	return "AWS.SimpleQueueService.TooManyEntriesInBatchRequest"
+}
+
+// Message returns the exception's message.
+func (s *TooManyEntriesInBatchRequest) Message() string {
+	if s.Message_ != nil {
+		return *s.Message_
+	}
+	return ""
+}
+
+// OrigErr always returns nil, satisfies awserr.Error interface.
+func (s *TooManyEntriesInBatchRequest) OrigErr() error {
+	return nil
+}
+
+func (s *TooManyEntriesInBatchRequest) Error() string {
+	return fmt.Sprintf("%s: %s", s.Code(), s.Message())
+}
+
+// Status code returns the HTTP status code for the request's response error.
+func (s *TooManyEntriesInBatchRequest) StatusCode() int {
+	return s.RespMetadata.StatusCode
+}
+
+// RequestID returns the service's response RequestID for request.
+func (s *TooManyEntriesInBatchRequest) RequestID() string {
+	return s.RespMetadata.RequestID
+}
+
+// Error code 400. Unsupported operation.
+type UnsupportedOperation struct {
+	_            struct{}                  `type:"structure"`
+	RespMetadata protocol.ResponseMetadata `json:"-" xml:"-"`
+
+	Message_ *string `locationName:"message" type:"string"`
+}
+
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s UnsupportedOperation) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s UnsupportedOperation) GoString() string {
+	return s.String()
+}
+
+func newErrorUnsupportedOperation(v protocol.ResponseMetadata) error {
+	return &UnsupportedOperation{
+		RespMetadata: v,
+	}
+}
+
+// Code returns the exception type name.
+func (s *UnsupportedOperation) Code() string {
+	return "AWS.SimpleQueueService.UnsupportedOperation"
+}
+
+// Message returns the exception's message.
+func (s *UnsupportedOperation) Message() string {
+	if s.Message_ != nil {
+		return *s.Message_
+	}
+	return ""
+}
+
+// OrigErr always returns nil, satisfies awserr.Error interface.
+func (s *UnsupportedOperation) OrigErr() error {
+	return nil
+}
+
+func (s *UnsupportedOperation) Error() string {
+	return fmt.Sprintf("%s: %s", s.Code(), s.Message())
+}
+
+// Status code returns the HTTP status code for the request's response error.
+func (s *UnsupportedOperation) StatusCode() int {
+	return s.RespMetadata.StatusCode
+}
+
+// RequestID returns the service's response RequestID for request.
+func (s *UnsupportedOperation) RequestID() string {
+	return s.RespMetadata.RequestID
+}
+
 type UntagQueueInput struct {
 	_ struct{} `type:"structure"`
 
@@ -5598,7 +7559,7 @@ type UntagQueueInput struct {
 	// The list of tags to be removed from the specified queue.
 	//
 	// TagKeys is a required field
-	TagKeys []*string `locationNameList:"TagKey" type:"list" flattened:"true" required:"true"`
+	TagKeys []*string `type:"list" flattened:"true" required:"true"`
 }
 
 // String returns the string representation.
@@ -5784,9 +7745,6 @@ const (
 
 	// QueueAttributeNameRedriveAllowPolicy is a QueueAttributeName enum value
 	QueueAttributeNameRedriveAllowPolicy = "RedriveAllowPolicy"
-
-	// QueueAttributeNameSqsManagedSseEnabled is a QueueAttributeName enum value
-	QueueAttributeNameSqsManagedSseEnabled = "SqsManagedSseEnabled"
 )
 
 // QueueAttributeName_Values returns all elements of the QueueAttributeName enum
@@ -5813,6 +7771,5 @@ func QueueAttributeName_Values() []string {
 		QueueAttributeNameDeduplicationScope,
 		QueueAttributeNameFifoThroughputLimit,
 		QueueAttributeNameRedriveAllowPolicy,
-		QueueAttributeNameSqsManagedSseEnabled,
 	}
 }

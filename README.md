@@ -1,4 +1,4 @@
-# AWS SDK for Go
+# AWS SDK for Go (with modified SQS API that uses JSON wire protocol)
 
 [![API Reference](https://img.shields.io/badge/api-reference-blue.svg)](https://docs.aws.amazon.com/sdk-for-go/api) [![Join the chat at https://gitter.im/aws/aws-sdk-go](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/aws/aws-sdk-go?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) [![Build status](https://github.com/aws/aws-sdk-go/actions/workflows/go.yml/badge.svg?branch=main)](https://github.com/aws/aws-sdk-go/actions/workflows/go.yml) [![Apache V2 License](https://img.shields.io/badge/license-Apache%20V2-blue.svg)](https://github.com/aws/aws-sdk-go/blob/main/LICENSE.txt)
 

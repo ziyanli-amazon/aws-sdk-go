@@ -20,13 +20,14 @@ const SDKImportRoot = "github.com/aws/aws-sdk-go"
 
 // An API defines a service API's definition. and logic to serialize the definition.
 type API struct {
-	Metadata      Metadata
-	Operations    map[string]*Operation
-	Shapes        map[string]*Shape
-	Waiters       []Waiter
-	Documentation string `json:"-"`
-	Examples      Examples
-	SmokeTests    SmokeTestSuite
+	Metadata           Metadata
+	Operations         map[string]*Operation
+	Shapes             map[string]*Shape
+	Waiters            []Waiter
+	Documentation      string `json:"-"`
+	Examples           Examples
+	SmokeTests         SmokeTestSuite
+	AwsQueryCompatible map[string]map[string]string
 
 	IgnoreUnsupportedAPIs bool
 
@@ -252,6 +253,13 @@ func (a *API) ShapeListErrors() []*Shape {
 		}
 	}
 	return list
+}
+
+func (a *API) AwsQueryCompatibleErrorCode(errorCode string) string {
+	if len(a.AwsQueryCompatible) > 0 && a.AwsQueryCompatible[errorCode] != nil && a.AwsQueryCompatible[errorCode]["code"] != "" {
+		return a.AwsQueryCompatible[errorCode]["code"]
+	}
+	return errorCode
 }
 
 // resetImports resets the import map to default values.
@@ -919,7 +927,7 @@ const (
 
 	var exceptionFromCode = map[string]func(protocol.ResponseMetadata)error {
 		{{- range $_, $s := $.ShapeListErrors }}
-			"{{ $s.ErrorName }}": newError{{ $s.ShapeName }},
+			"{{ $s.ShapeName }}": newError{{ $s.ShapeName }},
 		{{- end }}
 	}
 {{- end }}
