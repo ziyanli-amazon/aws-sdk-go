@@ -4,6 +4,11 @@ This example shows how the SDK's API interfaces can be used by your code instead
 
 # Usage
 
-Use the `go test` tool to verify the `Queue` type's `GetMessages` function correctly unmarshals the SQS message responses.
+Use the `go test` tool to 
+- verify the `Queue` type's `GetMessages` function correctly unmarshals the SQS message responses.
 
-`go test -tags example ifaceExample.go`
+    `go test -tags example ifaceExample.go`
+
+- verify the operations like `ListQueues`, `SendMessage`, `ReceiveMessage`, and `DeleteMessage` throw correct error codes.
+
+  `go test -tags example errorHandlingExample.go`
